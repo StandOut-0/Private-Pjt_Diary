@@ -1,0 +1,203 @@
+일기앱
+
+조건 / 핵심 기능 (MVP)--------------------------------------------------------------------------------
+1. OS / Android 동시 출시 -> Dart, Flutter 구성으로 개발
+2. 앱 잠금 해제: 지문만 사용 -> Local Authentication local_auth 패키지 지문 / Face ID / 기기 잠금 인증
+3. 서버리스로 완벽한 보완
+Flutter
+ ├─ local_auth (지문 인증)
+ ├─ 로컬 DB (암호화)
+       ├─ Hive (Encrypted)
+       └─ or Drift + SQLCipher
+4. 일기는 하루에 여러개쓸 수 있고 원하는 *색(감정)을 선택할 수 있다
+*감정리스트: 기본(회색), 검정, 빨, 노, 초, 파, 핑크, 보라
+enum Emotion {gray, black, red, yellow, green, blue, pink, purple}
+
+페이지구성--------------------------------------------------------------------------------
+1. 월별 캘린더 페이지 -> 리스트 전환가능, 감정 색상의 개수 badge
+2. 상세 페이지 -> 날짜 자동(editable),텍스트 무제한
+
+데이터구성--------------------------------------------------------------------------------
+Diary
+- id
+- date (yyyy-mm-dd)
+- createdAt
+- emotion
+- content
+- title (optional) : 당장 사용하지않음, 확장용
+- moodIntensity (1~5) : 당장 사용하지않음, 확장용
+
+예상일정(1주=5일, MVP/혼자, Hive(Encrypted)기준으로 작성(Drift는 +α))-----------------------------
+1주차: 앱 뼈대 + 보안 기반
+2주차: 일기 CRUD + 캘린더
+3주차: UX 다듬기 + 배포
+
+상세일정--------------------------------------------------------------------------------
+
+Day 1: 목표: 앱 실행 → 화면 뜬다
+1. Flutter 프로젝트 생성
+2. 폴더 구조 설계
+lib/
+ ├─ core (theme, constants)
+ ├─ auth (local_auth)
+ ├─ data (model, db)
+ ├─ ui (pages, widgets)
+3. 기본 테마(색, 폰트) 설정
+4. 스플래시 화면 뼈대
+
+Day 2: 목표: “나만 들어갈 수 있는 앱” 완성
+1.local_auth 연동
+2.지문 / Face ID 인증 플로우
+  앱 실행 → 인증 성공 → 홈
+  실패 시 재시도 / 앱 종료
+3.기기 생체인증 없는 경우 예외 처리
+
+Day 3: 목표: 암호화된 로컬 DB 준비 완료
+1.Hive 세팅
+2.암호화 키 생성 및 저장
+3.Diary 모델 정의
+4.Box 열기 / 닫기 구조
+
+Day 4: 목표: 일기 하나 써서 저장 가능
+1.Diary Create 기본 로직
+2.임시 텍스트 저장 테스트
+3.Emotion enum 연결
+4.간단한 입력 화면
+
+Day 5: 목표: “기본 뼈대 안정화”
+1.앱 재실행 시 데이터 유지 확인
+2.지문 인증 + DB 연결 흐름 점검
+3.코드 정리 / 리팩터링
+
+Day 6: 목표: 쓴 일기들이 보인다
+1.Diary Read (목록)
+2.날짜 기준 정렬
+3.리스트 UI 초안
+
+Day 7: 목표: CRUD 완성
+1.Diary Update / Delete
+2.수정 시 날짜 변경 가능
+3.삭제 confirm dialog
+
+Day 8: 목표: 캘린더에서 감정 흐름 보임
+1.월별 캘린더 UI 구현
+2.날짜별 일기 grouping
+3.감정 색상 dot 표시
+
+Day 9: 목표: 메인 UX 완성
+1.캘린더 ↔ 리스트 전환
+2.감정 색상 개수 badge
+3.날짜 클릭 → 해당 날짜 상세 이동
+
+Day 10: 목표: MVP 기능 완료 선언
+1.예외 케이스 정리
+2.빈 상태
+3.데이터 없음
+4.성능 체크 (스크롤, 캘린더)
+5.앱 종료 / 백그라운드 → 재진입 시 지문 재요청 여부
+
+Day 11: 목표: “쓰고 싶은 앱” 느낌
+1.UI 디테일 정리
+2.색상 톤
+3.버튼 / 여백
+4.감정 색상 선택 UI 개선
+
+Day 12: 목표: 완성도 업
+1.애니메이션 최소 추가
+2.다크모드 대응
+3.접근성(텍스트 크기) 
+
+Day 13: 목표: 스토어 제출 준비
+1.앱 아이콘 / 스플래시 정리
+2.Android 빌드 테스트
+3.iOS 빌드 테스트
+
+Day 14: 목표: 제출 완료
+1.Play Store 등록
+2.App Store 심사용 빌드
+3.스토어 설명 작성
+
+Day 15:  목표: 출시 
+1.심사 대응
+2.버그 핫픽스
+3.릴리즈 노트 작성
+
+
+pubspec.yaml--------------------------------------------------------------------------------
+
+MVP 핵심
+dependencies:
+  flutter:
+    sdk: flutter
+  # 생체 인증
+  local_auth: ^2.1.7
+  # 로컬 DB (암호화)
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  # 날짜 / 시간
+  intl: ^0.18.1
+  # UI 보조
+  flutter_svg: ^2.0.9
+
+UX 향상
+dependencies:
+  # 상태관리
+  flutter_riverpod: ^2.4.9
+  # 애니메이션
+  animations: ^2.0.11
+  # 앱 아이콘
+  flutter_launcher_icons: ^0.13.1
+
+dev_dependencies
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.7
+
+상태관리---------------------------------------------------------------------------
+Bloc은 Diary 앱에 너무 과하다고 판단.
+작은 앱규모, 서버리스로 로컬 DB 중심, 비동기 로직 단순한 Riverpod로 선택.
+
+Riverpod 역할 분리(Repository: Hive 접근, Provider: 상태 관리, UI: watch만)
+lib/
+ ├─ data/
+ │   ├─ diary_repository.dart
+ │   └─ diary_provider.dart
+ ├─ ui/
+ │   ├─ calendar_page.dart
+ │   └─ diary_list_page.dart
+
+
+캘린더 패키지---------------------------------------------------------------------------
+syncfusion_flutter_calendar은 Diary 앱에 너무 과하다고 판단.
+날짜별 marker(dot) 지원, 커스터마이징 자유도 높음, 감정 색상 dot 구현 쉬움, 사용 포인트
+eventLoader → 날짜별 일기
+CalendarBuilders → 감정 dot UI
+월별 캘린더에 최적한 패키지 table_calendar로 선택.
+
+table_calendar
+dependencies:
+  table_calendar: ^3.0.9
+
+
+Hive 암호화 키 관리 방식 ---------------------------------------------------------------------------
+목표: 절대 서버로 안 나감, 앱 삭제 시 데이터도 같이 삭제, 기기마다 키 다름
+
+flutter_secure_storage 사용
+dependencies:
+  flutter_secure_storage: ^9.0.0
+
+키 생성 & 저장 흐름
+앱 최초 실행
+ → 랜덤 32바이트 키 생성
+ → secure_storage 저장
+ → Hive encryptedBox에 사용
+
+구조 예시
+lib/
+ ├─ core/
+ │   └─ secure_key_manager.dart
+ └─ data/
+     └─ hive_service.dart
+
